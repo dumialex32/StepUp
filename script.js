@@ -1,15 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const carello = {
-    scarpeAggiunte: [],
-    totalePrezzo: 0,
-  };
-
   const aggiungiBtn = document.getElementById("aggiungi");
-  const acquistaBtn = document.getElementById("acquista");
+  const totale = document.getElementById("totale");
+
+  let prezzoTotale = 0;
 
   aggiungiBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    console.log("e");
 
     aggiungi();
 
@@ -27,10 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     vizualizza() {
       return `La scarpa ${this.modello} di ${this.marca} costa €${this.prezzo}, ed è disponibile in ${this.quantita} pezzi.`;
-    }
-
-    calcolaPrezzoTotale(quantitaAquistitata) {
-      return this.prezzo * quantitaAquistitata;
     }
   }
 
@@ -63,24 +55,48 @@ document.addEventListener("DOMContentLoaded", () => {
     }</p>
                   <a href="#" class="card-link">www.${scarpa.modello}.com</a>
                   <div>
-                  <button class="btn btn-primary mt-2">Aggiungi</button>
+                  <button class="btn btn-primary mt-2" id="acquista">Aggiungi</button>
                   </div>
         </div>
       </div>
     `;
 
+    const button = card.querySelector(".btn-primary");
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      scegli(scarpa.prezzo);
+    });
+
     return card;
+  }
+
+  function scegli(prezzoScarpa) {
+    const totale = document.getElementById("totale");
+
+    prezzoTotale += prezzoScarpa;
+
+    totale.innerHTML =
+      prezzoTotale > 0 ? `Il prezzo totale: ${prezzoTotale}` : "";
   }
 
   function stampa() {
     const scarpe = document.getElementById("scarpe");
     scarpe.innerHTML = "";
     listaScarpe.forEach((scarpa) => {
-      card = createCard(scarpa);
+      const card = createCard(scarpa);
 
       scarpe.appendChild(card);
     });
   }
+
+  document.querySelectorAll(".acquista-btn").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      console.log("ok");
+      e.preventDefault();
+      aggiungiAlCarrello(e.target.dataset.modello);
+    });
+  });
 
   function prendiValoriInput() {
     const marca = document.getElementById("marca").value;
@@ -102,11 +118,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function aggiungi() {
-    const { marca, modello, prezzo, url } = prendiValoriInput();
+    const { marca, modello, prezzo, url, quantita } = prendiValoriInput();
     console.log(marca, modello, prezzo, url);
 
     if (marca && modello && prezzo && url) {
-      const scarpaNuova = new Scarpa(marca, parseFloat(modello), +prezzo, url);
+      const scarpaNuova = new Scarpa(
+        marca,
+        modello,
+        parseFloat(prezzo),
+        url,
+        quantita
+      );
       console.log(scarpaNuova);
 
       listaScarpe.push(scarpaNuova);
@@ -131,7 +153,8 @@ document.addEventListener("DOMContentLoaded", () => {
           scarpa.marca,
           scarpa.modello,
           scarpa.prezzo,
-          scarpa.url
+          scarpa.url,
+          scarpa.quantita
         );
       });
     }
